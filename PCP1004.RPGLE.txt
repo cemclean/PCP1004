@@ -2,14 +2,11 @@
       *                                                                                             
       * Email Ship Confirmation                                                                     
       *                                                                                             
-      * CRTRPGMOD MODULE(JDEOBJP/PCP1004) SRCFILE(SERSRCLE) DBGVIEW(*SOURCE)                        
-      * CRTPGM PGM(JDEOBJP/PCP1004) MODULE(PCP1004 PCS001)                                          
-      *                                                                                             
-      * CC27749 01.04.2010 Charlie McLean                                                           
-      *         Snagged from RPGISCOOL/IFSSRC/WRITESTMF                                             
+      * CRTRPGMOD MODULE(library/PCP1004) SRCFILE(file) DBGVIEW(*SOURCE)                        
+      * CRTPGM PGM(library/PCP1004) MODULE(PCP1004 PCS001)                                          
       *                                                                                             
       * T28216  08.04.2010 Chalrie McLean                                                           
-      *         added /FSUS                                                                         
+      *         project started                                                                         
       *                                                                                             
       *-----------------------------------------------------------------                            
      h option(*srcstmt) bnddir('QC2LE')                                                             
