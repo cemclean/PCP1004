@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"                                      
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">                                          
+<html>                                                                                              
+<head>                                                                                              
+<style type="text/css">                                                                             
+p { font-family: verdana; font-size: 12px; }                                                        
+th { font-family: verdana; font-weight: normal; font-size: 12px; }                                  
+td { font-family: verdana; font-weight: normal; font-size: 12px; }                                  
+table                                                                                               
+{   border-color: #000000;                                                                          
+    border-width: 1px 1px 0px 0px;                                                                  
+    border-style: solid;}                                                                           
+th                                                                                                  
+{   border-color: #000000;                                                                          
+    border-width: 0px 0px 1px 1px;                                                                  
+    border-style: solid;                                                                            
+    margin: 0}                                                                                      
+td                                                                                                  
+{   border-color: #000000;                                                                          
+    border-width: 0px 0px 1px 1px;                                                                  
+    border-style: solid;                                                                            
+    margin: 0}                                                                                      
+</style>                                                                                            
+</head>                                                                                             
+<body>                                                                                              
+<div style="width: 36em;">                                                                          
+<p>                                                                                                 
+Thank you for your order. To facilitate  your planning, we are                                      
+providing the following shipping information and tracking numbers for                               
+your reference.                                                                                     
+</p>                                                                                                
+<p> </p>                                                                                            

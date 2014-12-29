@@ -1,0 +1,402 @@
+      *-----------------------------------------------------------------                            
+      *                                                                                             
+      * Email Ship Confirmation                                                                     
+      *                                                                                             
+      * CRTRPGMOD MODULE(JDEOBJP/PCP1004) SRCFILE(SERSRCLE) DBGVIEW(*SOURCE)                        
+      * CRTPGM PGM(JDEOBJP/PCP1004) MODULE(PCP1004 PCS001)                                          
+      *                                                                                             
+      * CC27749 01.04.2010 Charlie McLean                                                           
+      *         Snagged from RPGISCOOL/IFSSRC/WRITESTMF                                             
+      *                                                                                             
+      * T28216  08.04.2010 Chalrie McLean                                                           
+      *         added /FSUS                                                                         
+      *                                                                                             
+      *-----------------------------------------------------------------                            
+     h option(*srcstmt) bnddir('QC2LE')                                                             
+                                                                                                    
+      *         EOD shipments - rcd/order no email sent UPS                                         
+     fF56255T1  uf   e           k disk                                                             
+      *         EOD shipments - rcd/order no email sent DHL                                         
+     fF56255H1  uf   e           k disk    rename(I56255:I56255H)                                   
+      *         EOD shipments - rcd/order no email sent FDX                                         
+     fF56255F1  uf   e           k disk    rename(I56255:I56255F)                                   
+      *         EOD shipments - order detail                                                        
+     fF56255D   if   e           k disk                                                             
+      *         source file - <head> prologue                                                       
+     fsersrcle  if   e           k disk    rename(sersrcle:msgcss)                                  
+     f                                     usropn                                                   
+                                                                                                    
+     dmypsds          SDS                                                                           
+     d $$jobn                244    253                                                             
+     d $$user                254    263                                                             
+                                                                                                    
+     d                 DS                                                                           
+     d TimDat                  1     14  0                                                          
+     d stime                   1      6  0                                                          
+     d smm                     7      8                                                             
+     d sdd                     9     10                                                             
+     d syy                    11     14                                                             
+                                                                                                    
+     d Runcmd          PR                  ExtPgm('QCMDEXC')                                        
+     d                             3000    Const Options(*Varsize)                                  
+     d                               15  5 Const                                                    
+                                                                                                    
+     d Cmd             s           3000    Varying                                                  
+                                                                                                    
+      * prototypes - IFS APIs                                                                       
+      /COPY JDECPY2,CP001                                                                           
+                                                                                                    
+      * prototypes - DspError subprocedure                                                          
+      /COPY JDECPY2,CP002                                                                           
+                                                                                                    
+      * variables - IFS APIs used                                                                   
+     d Path            s            100A                                                            
+     d FileDesc        s             10I 0   Inz                                                    
+     d Oflag           s             10I 0   Inz                                                    
+     d Mode            s             10I 0   Inz                                                    
+                                                                                                    
+      * read API() definitions for oflag and mode parameters                                        
+      /COPY JDECPY2,CP003                                                                           
+                                                                                                    
+      * stand-alone fields                                                                          
+     d RC              s             10I 0                                                          
+     d buffer          s            200A   Inz(*blank)                                              
+     d  buffer@        s               *   Inz(%addr(buffer))                                       
+     d $$upmj          s              6  0                                                          
+     d ##file          s              2  0 Inz(00)                                                  
+     d $$Dstamp        s             10                                                             
+     d p1              s             80                                                             
+     d p2              c                   'Fujifilm Sericol Customer -                             
+     d                                     Service'                                                 
+     d p3              c                   'sinccustomerservice@-                                   
+     d                                     fujifilmsericol.com'                                     
+                                                                                                    
+      * constants                                                                                   
+     d CodePage        c                   437                                                      
+     d CRLF            c                   X'0D25'                                                  
+     d $$pid           c                   'PCP1004'                                                
+                                                                                                    
+      * text fields for <body>                                                                      
+     d Tracking        c                   'Tracking number(s): '                                   
+     d Table           c                   '<table cellspacing="0" -                                
+     d                                     cellpadding="2">'                                        
+     d Shipped         c                   'Your Fujifilm Sericol order -                           
+     d                                     has shipped from '                                       
+     d Questions       c                   'If you have questions, please -                         
+     d                                     contact Sericol Customer Service -                       
+     d                                     at 800-255-4562 between 7:30 AM -                        
+     d                                     and 6:00 PM Central Time.'                               
+      *                                                                                             
+     c                   exsr      s999                                                             
+                                                                                                    
+      /Free                                                                                         
+       read f56255t1;                                                                               
+       Dow Not %EOF(f56255t1);                                                                      
+        exsr s001;                                                                                  
+        exsr s002;                                                                                  
+        exsr s003;                                                                                  
+        exsr s004;                                                                                  
+        exsr s005;                                                                                  
+        exsr s006;                                                                                  
+        read f56255t1;                                                                              
+       Enddo;                                                                                       
+      /End-Free                                                                                     
+                                                                                                    
+      /Free                                                                                         
+       read f56255h1;                                                                               
+       Dow Not %EOF(f56255h1);                                                                      
+        exsr s001;                                                                                  
+        exsr s002;                                                                                  
+        exsr s003;                                                                                  
+        exsr s004;                                                                                  
+        exsr s005;                                                                                  
+        exsr s007;                                                                                  
+        read f56255h1;                                                                              
+       Enddo;                                                                                       
+      /End-Free                                                                                     
+                                                                                                    
+                                                                                                    
+      /Free                                                                                         
+       read f56255f1;                                                                               
+       Dow Not %EOF(f56255f1);                                                                      
+        exsr s001;                                                                                  
+        exsr s002;                                                                                  
+        exsr s003;                                                                                  
+        exsr s004;                                                                                  
+        exsr s005;                                                                                  
+        exsr s008;                                                                                  
+        read f56255f1;                                                                              
+       Enddo;                                                                                       
+      /End-Free                                                                                     
+                                                                                                    
+     c                   eval      *inlr = *on                                                      
+                                                                                                    
+      * subroutines -----------------------------------------------------                           
+                                                                                                    
+      *------------------------------------------------------------  S001                           
+      * create MIME file and write <head>                                                           
+      *                                                                                             
+     c     S001          begsr                                                                      
+     c                   if        ##file = 99                                                      
+     c                   eval      ##file = 0                                                       
+     c                   endif                                                                      
+                                                                                                    
+     c                   eval      ##file = ##file + 1                                              
+     c                   if        ##file < 10                                                      
+     c                   eval      path = '/fsus/shipconfirm/master-' + '0' +                       
+     c                                    %char(##file) + '.html'                                   
+     c                   else                                                                       
+     c                   eval      path = 'fsus/shipconfirm/master-' +                              
+     c                                    %char(##file) + '.html'                                   
+     c                   endif                                                                      
+                                                                                                    
+      * set file status for reading & writing. specify codepage.                                    
+      * if file exists, it will be truncated to zero.                                               
+     c                   Eval      oflag = O_CREATE + O_RDWR + O_CODEPAGE                           
+     c                                       + O_TRUNC                                              
+      * set file mode parameter                                                                     
+     c                   Eval      mode = S_IRWXU + S_IRWXG +                                       
+     c                                       S_IROTH + S_IXOTH                                      
+                                                                                                    
+      * create stream file                                                                          
+     c                   Eval      FileDesc = open(%trimr(path) : oflag :                           
+     c                                             mode : codepage)                                 
+                                                                                                    
+     c                   If        FileDesc = -1                                                    
+     c                   CallP     DspError('IFS open')                                             
+     c                   Else                                                                       
+                                                                                                    
+      * close file                                                                                  
+     c                   Eval      RC = close(Filedesc)                                             
+     c                   If        RC = -1                                                          
+     c                   CallP     DspError('IFS close')                                            
+     c                   EndIf                                                                      
+     c                   EndIf                                                                      
+                                                                                                    
+      * set flag for automatic ASCII -> EBCDIC translation                                          
+     c                   Eval      oflag = O_WRONLY + O_TEXTDATA                                    
+                                                                                                    
+      * open file, receive file descriptor                                                          
+     c                   Eval      FileDesc = open(%trimr(path) : oflag)                            
+     c                   If        FileDesc = -1                                                    
+     c                   CallP     DspError('IFS open')                                             
+     c                   Else                                                                       
+                                                                                                    
+      * write <head>                                                                                
+      /Free                                                                                         
+       Cmd = 'OVRDBF FILE(SERSRCLE) MBR(PCP1004CSS)';                                               
+       Runcmd(Cmd:%Len(Cmd));                                                                       
+       open sersrcle;                                                                               
+       read sersrcle;                                                                               
+       Dow Not %EOF(sersrcle);                                                                      
+        buffer = %trimr(SrcDta) + CRLF;                                                             
+        rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                      
+        read sersrcle;                                                                              
+       Enddo;                                                                                       
+       close sersrcle;                                                                              
+      /End-Free                                                                                     
+                                                                                                    
+     c                   EndIf                                                                      
+                                                                                                    
+     c                   eval      *in91 = *on                                                      
+     c     S001E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S002                           
+      * write <body> Thank you & tracking number(s)                                                 
+      *                                                                                             
+     c     S002          begsr                                                                      
+      /Free                                                                                         
+                                                                                                    
+         buffer = '<p>' + CRLF;                                                                     
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+         buffer = 'Order: ' + edtord + '</p>' + CRLF;                                               
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+         buffer = '</p>' + CRLF;                                                                    
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+         buffer = '<p> </p>' + CRLF;                                                                
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+                                                                                                    
+         buffer = '<p>' + CRLF;                                                                     
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+         buffer = 'Carrier: ' + edtcar + '</p>' + CRLF;                                             
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+         buffer = '</p>' + CRLF;                                                                    
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+         buffer = '<p> </p>' + CRLF;                                                                
+         rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                     
+                                                                                                    
+                                                                                                    
+       buffer = '<p>' + CRLF;                                                                       
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = Tracking + edttrk + '</p>' + CRLF;                                                  
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</p>' + CRLF;                                                                      
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<p> </p>' + CRLF;                                                                  
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+                                                                                                    
+       buffer = '<p>' + CRLF;                                                                       
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = Table + CRLF;                                                                       
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+                                                                                                    
+       buffer = '<tr>' + CRLF;                                                                      
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<th align=left>item</th>' + CRLF;                                                  
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<th align=left>description</th>' + CRLF;                                           
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<th align=right>qty ordered</th>' + CRLF;                                          
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<th align=right>qty shipped</th>' + CRLF;                                          
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<th align=right>shipped</th>' + CRLF;                                              
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</tr>' + CRLF;                                                                     
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+      /End-Free                                                                                     
+     c                   eval      *in92 = *on                                                      
+     c     S002E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S003                           
+      * write <body> table rows(s)                                                                  
+      *                                                                                             
+     c     S003          begsr                                                                      
+     c                   eval      eddord = *blanks                                                 
+     c                   eval      eddtyp = *blanks                                                 
+     c                   eval      eddmcu = *blanks                                                 
+     c                   eval      edddat = *blanks                                                 
+     c                   eval      eddord = edtord                                                  
+                                                                                                    
+      /Free                                                                                         
+       Setll edkey F56255D;                                                                         
+        Read I56255D;                                                                               
+        Dow Not %EOF(F56255D) and eddord = edtord;                                                  
+          buffer = '<tr>' + CRLF;                                                                   
+          rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                    
+          buffer = '<td align=left>' + edditm + '</td>' + CRLF;                                     
+          rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                    
+          buffer = '<td align=left>' + eddsc1 + '</td>' + CRLF;                                     
+          rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                    
+          buffer = '<td align=right>' + %char(eddorg) + '</td>' + CRLF;                             
+          rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                    
+          buffer = '<td align=right>' + %char(eddoqs) + '</td>' + CRLF;                             
+          rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                    
+          buffer = '<td align=right>' + eddsdt + '</td>' + CRLF;                                    
+          rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                    
+          buffer = '</tr>' + CRLF;                                                                  
+          rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                    
+        Read I56255D;                                                                               
+       Enddo;                                                                                       
+      /End-Free                                                                                     
+                                                                                                    
+                                                                                                    
+     c     S003E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S004                           
+      * write <body> closure                                                                        
+      *                                                                                             
+     c     S004          begsr                                                                      
+      /Free                                                                                         
+       buffer = '</table>' + CRLF;                                                                  
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</p>' + CRLF;                                                                      
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<p> </p>' + CRLF;                                                                  
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<p>' + CRLF;                                                                       
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = %trim(Shipped + eddloc + '.') + CRLF;                                               
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</p>' + CRLF;                                                                      
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<p> </p>' + CRLF;                                                                  
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '<p>' + CRLF;                                                                       
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = Questions + CRLF;                                                                   
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</p>' + CRLF;                                                                      
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</div>' + CRLF;                                                                    
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</body>' + CRLF;                                                                   
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+       buffer = '</html>' + CRLF;                                                                   
+       rc = write(FileDesc : buffer@ : %len(%trimr(buffer)));                                       
+      /End-Free                                                                                     
+                                                                                                    
+      * close file                                                                                  
+     c                   Eval      RC = close(FileDesc)                                             
+     c                   If        RC = -1                                                          
+     c                   CallP     DspError('IFS close')                                            
+     c                   EndIf                                                                      
+     c     S004E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S005                           
+      * email file                                                                                  
+      *                                                                                             
+     c     S005          begsr                                                                      
+     c                   monitor                                                                    
+      * build first part of the command string                                                      
+     c                   eval        p1 = 'Fujifilm Sericol Shipment-                               
+     c                               - PO: ' + edtpon                                               
+     c                   eval        Cmd = '*LIBL/EMLHTML +                                         
+     c                               subject(''' + %trim(p1) + ''') +                               
+     c                               fromname(''' + %trim(p2) + ''') +                              
+     c                               fromaddr(''' + %trim(p3) + ''') +                              
+     c                               to('                                                           
+      * insert email to address                                                                     
+     c                   eval        Cmd = Cmd + %trim(edteml) +                                    
+     c                               '/' + '''  ''' + '/*TO)'                                       
+      * add html body file                                                                          
+     c                   eval        Cmd = Cmd + ' stmf(''' +                                       
+     c                               %trim(path) + ''')'                                            
+      * run command string                                                                          
+      /Free                                                                                         
+         Runcmd(Cmd:%Len(Cmd));                                                                     
+      /End-Free                                                                                     
+                                                                                                    
+     c                   on-error                                                                   
+     c                   goto      S005E                                                            
+     c                   endmon                                                                     
+     c     S005E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S006                           
+      * update email date - UPS                                                                     
+      *                                                                                             
+     c     S006          begsr                                                                      
+     c                   eval      edtemd = $$Dstamp                                                
+     c                   update    I56255                                                           
+     c     S006E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S007                           
+      * update email date - DHL                                                                     
+      *                                                                                             
+     c     S007          begsr                                                                      
+     c                   eval      edtemd = $$Dstamp                                                
+     c                   update    I56255H                                                          
+     c     S007E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S008                           
+      * update email date - FDX                                                                     
+      *                                                                                             
+     c     S008          begsr                                                                      
+     c                   eval      edtemd = $$Dstamp                                                
+     c                   update    I56255F                                                          
+     c     S008E         endsr                                                                      
+                                                                                                    
+      *------------------------------------------------------------  S999                           
+      * initialize                                                                                  
+      *                                                                                             
+     c     S999          begsr                                                                      
+     c     EDKEY         KLIST                                                                      
+     c                   KFLD                    eddord                                             
+     c                   KFLD                    eddtyp                                             
+     c                   KFLD                    eddmcu                                             
+     c                   KFLD                    edddat                                             
+      * time stamp yyyy-mm-12                                                                       
+     c                   time                    timdat                                             
+     c                   eval      $$dstamp = syy + '-' +                                           
+     c                                        smm + '-' + sdd                                       
+     c     S999E         endsr                                                                      
